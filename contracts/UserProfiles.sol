@@ -3,45 +3,52 @@ pragma solidity ^0.8.20;
 
 contract UserProfiles {
     struct UserStats {
-        // self explanatory attributes
+        // self-explanatory attributes
         uint totalWagers;
         uint correctWagers;
         int netWinsLosses;
         uint biggestWin;
         uint biggestLoss;
+        uint accuracy; // 0-100
     }
 
-    mapping(address => UserStats) public stats;
+    mapping(address => UserStats) private _stats;
+    mapping(address => uint256[]) private _timeline;
 
-    event UserUpdated(address indexed user, uint totalWagers, uint correctWagers);
+    event UserUpdated(address indexed user, uint totalWagers, uint correctWagers, int netWinsLosses);
 
-    function recordWagerResult(
+    // called by WagerManager
+    function updateStats(
         address user,
-        bool won,
-        uint amount
+        bool wasCorrect,
+        int256 netChange,
+        uint256 absAmount
     ) external {
-        UserStats storage s = stats[user];
-        s.totalWagers++;
+        UserStats storage s = _stats[user];
 
-        if (won) {
+        s.totalWagers++;
+        if (wasCorrect) {
             s.correctWagers++;
-            s.netWinsLosses += int(amount);
-            if (amount > s.biggestWin) {
-                s.biggestWin = amount;
-            }
+            s.netWinsLosses += netChange;
+            if (absAmount > s.biggestWin) s.biggestWin = absAmount;
         } else {
-            s.netWinsLosses -= int(amount);
-            if (amount > s.biggestLoss) {
-                s.biggestLoss = amount;
-            }
+            s.netWinsLosses -= netChange;
+            if (absAmount > s.biggestLoss) s.biggestLoss = absAmount;
         }
 
-        emit UserUpdated(user, s.totalWagers, s.correctWagers);
+        s.accuracy = s.totalWagers > 0 ? (s.correctWagers * 100) / s.totalWagers : 0;
+
+        _timeline[user].push(absAmount);
+
+        emit UserUpdated(user, s.totalWagers, s.correctWagers, s.netWinsLosses);
     }
 
-    function getAccuracy(address user) external view returns (uint) {
-        UserStats memory s = stats[user];
-        if (s.totalWagers == 0) return 0;
-        return (s.correctWagers * 100) / s.totalWagers;
+    // read functions
+    function getStats(address user) external view returns (UserStats memory) {
+        return _stats[user];
+    }
+
+    function getTimeline(address user) external view returns (uint256[] memory) {
+        return _timeline[user];
     }
 }
