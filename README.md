@@ -1,4 +1,3 @@
-````markdown
 # Klout Backend
 
 This is the **backend for Klout**, powered by **Hardhat** and smart contracts.  
@@ -49,7 +48,6 @@ It contains all the contract code, deployment scripts, and configuration needed 
    ```bash
    git clone https://github.com/nap3-za/klout.git
    cd klout/backend
-````
 
 2. Install dependencies:
 
@@ -67,7 +65,7 @@ It contains all the contract code, deployment scripts, and configuration needed 
 
 ---
 
-## ⚡ Usage
+## Usage
 
 ### Start a local Hardhat node
 
