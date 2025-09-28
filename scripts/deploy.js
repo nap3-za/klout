@@ -1,13 +1,6 @@
 const hre = require("hardhat");
 
 async function main() {
-  // deploy my token
-  const Token = await hre.ethers.getContractFactory("NAPE");
-  const token = await Token.deploy(1_000_000); // 1 million tokens, MILLIONAIRRREEE, RICH
-  await token.waitForDeployment();
-  const tokenAddress = await token.getAddress();
-  console.log("NFX Token deployed to:", tokenAddress);
-
   // userprofiles
   const Profiles = await hre.ethers.getContractFactory("UserProfiles");
   const profiles = await Profiles.deploy();
@@ -15,9 +8,9 @@ async function main() {
   const profilesAddress = await profiles.getAddress();
   console.log("UserProfiles deployed to:", profilesAddress);
 
-  // wagermanager with NFX token + userprofiles
+  // wagermanager without NFX token
   const WagerManager = await hre.ethers.getContractFactory("WagerManager");
-  const wagers = await WagerManager.deploy(tokenAddress, profilesAddress);
+  const wagers = await WagerManager.deploy(profilesAddress); // pass only profilesAddress now
   await wagers.waitForDeployment();
   const wagersAddress = await wagers.getAddress();
   console.log("WagerManager deployed to:", wagersAddress);
